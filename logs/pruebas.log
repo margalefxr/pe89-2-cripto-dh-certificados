@@ -1,0 +1,21 @@
+viernes, 16 de octubre de 2026, 10:40:12 CEST
+== tests ==
+test_misma_clave_compartida (test_dh_xor.TestDHXor.test_misma_clave_compartida) ... ok
+test_todas_las_combinaciones (test_dh_xor.TestDHXor.test_todas_las_combinaciones) ... ok
+test_xor_byte_a_byte (test_dh_xor.TestDHXor.test_xor_byte_a_byte) ... ok
+test_xor_ida_y_vuelta (test_dh_xor.TestDHXor.test_xor_ida_y_vuelta) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.057s
+
+OK
+
+== certificado ==
+OpenSSL 3.6.3 9 Jun 2026 (Library: OpenSSL 3.6.3 9 Jun 2026)
+subject=C=ES, O=CETI Formacion, OU=PE 89.2, CN=servidor.pe89.local
+issuer=C=ES, O=CETI Formacion, OU=Laboratorio de Criptografia, CN=CETI Lab Root CA 2026
+serial=89202601
+notBefore=Oct 16 06:21:14 2026 GMT
+notAfter=Oct 16 06:21:14 2027 GMT
+sha256 Fingerprint=C2:6C:98:F6:63:81:45:0C:04:9A:BA:29:72:B7:FB:CD:24:DB:54:31:27:95:E5:CB:BC:F0:06:82:56:1E:D7:14
+certificados/certificado_servidor_PE89_2.crt: OK

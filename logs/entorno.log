@@ -1,0 +1,9 @@
+viernes, 16 de octubre de 2026, 10:39:37 CEST
+
+NAME      IMAGE              COMMAND     SERVICE   CREATED         STATUS         PORTS
+alice     python:3.11-slim   "python3"   alice     2 minutes ago   Up 2 minutes   
+bob       python:3.11-slim   "python3"   bob       2 minutes ago   Up 2 minutes   
+
+internal=true subnet=172.28.0.0/16
+/bob hostname=bob ip=172.28.0.10 image=python:3.11-slim
+/alice hostname=alice ip=172.28.0.20 image=python:3.11-slim

@@ -1,0 +1,12 @@
+Introduce tu número secreto (b): 203
+[Local] Clave privada b = 203 (no sale del contenedor)
+[Local] Clave pública B = 6^203 mod 251 = 56
+
+[*] Esperando conexión de Alice en el puerto 5000...
+[*] Conexión establecida desde 172.28.0.20
+[Red Pública] Recibida clave pública de Alice: A = 107
+[Red Pública] Enviada la clave pública de Bob: B = 56
+[Local] Clave compartida K = 107^203 mod 251 = 96
+
+[Tráfico Cifrado en Red (Hex)]: 28 0F 0C 01 40 22 0F 02 4C 40 01 11 15 A3 CD 40 21 0C 09 03 05 4E 40 30 12 15 05 02 01 40 30 25 40 58 59 4E 52
+[+] Mensaje descifrado: Hola Bob, aquí Alice. Prueba PE 89.2

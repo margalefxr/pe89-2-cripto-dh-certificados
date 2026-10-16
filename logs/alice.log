@@ -1,0 +1,12 @@
+Introduce tu número secreto (a): 97
+[Local] Clave privada a = 97 (no sale del contenedor)
+[Local] Clave pública A = 6^97 mod 251 = 107
+
+[*] Conectando con el contenedor de Bob (172.28.0.10:5000)...
+[Red Pública] Enviada clave pública A = 107 | Recibida clave pública B = 56
+[Local] Clave compartida K = 56^97 mod 251 = 96
+
+Escribe el mensaje para Bob: Hola Bob, aquí Alice. Prueba PE 89.2
+
+[Enviando por la red en Hex]: 28 0F 0C 01 40 22 0F 02 4C 40 01 11 15 A3 CD 40 21 0C 09 03 05 4E 40 30 12 15 05 02 01 40 30 25 40 58 59 4E 52
+[+] ¡Mensaje cifrado enviado con éxito!
