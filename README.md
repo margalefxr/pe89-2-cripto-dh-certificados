@@ -53,18 +53,20 @@ Selección de técnicas criptográficas, intercambio Diffie–Hellman entre dos 
 
 ### 1.1 Selección de técnicas
 
-| Necesidad | Técnica | Justificación |
+| Necesidad | Técnica seleccionada | Justificación |
 |---|---|---|
-| Gran volumen de datos, clave ya compartida | **Cifrado simétrico** | Confidencialidad. Rápido (AES-GCM, ChaCha20-Poly1305) y la clave ya existe |
-| Secreto para un receptor sin clave acordada | **Cifrado asimétrico** | Confidencialidad. Cifro con la pública del receptor y solo su privada descifra. En la práctica cifra una clave de sesión (esquema híbrido) |
-| Detectar si un archivo ha cambiado | **Función hash** | Integridad. Un bit distinto cambia todo el SHA-256. Si el atacante puede cambiar también el hash hace falta HMAC o firma |
+| Proteger un gran volumen de información cuando emisor y receptor ya comparten una clave secreta | **Cifrado simétrico** | Confidencialidad. Rápido (AES-GCM, ChaCha20-Poly1305) y la clave ya existe |
+| Proteger un secreto destinado a un receptor sin haber acordado previamente una clave compartida | **Cifrado asimétrico** | Confidencialidad. Cifro con la pública del receptor y solo su privada descifra. En la práctica cifra una clave de sesión (esquema híbrido) |
+| Detectar si un archivo ha sido modificado | **Función hash** | Integridad. Un bit distinto cambia todo el SHA-256. Si el atacante puede cambiar también el hash hace falta HMAC o firma |
 | Comprobar la identidad de un servidor web | **Certificado digital** | Autenticación. La CA firma que esa clave pública es de ese dominio |
-| Acordar una clave por una red insegura | **Diffie–Hellman** | Intercambio de claves. Solo viajan valores públicos, K no pasa por la red. No autentica (MITM), por eso en TLS va con certificado |
-| Probar quién firmó un documento y detectar cambios | **Firma digital** | Autenticación, integridad y no repudio. Se firma el hash con la privada y se verifica con la pública |
+| Acordar una clave compartida a través de una red insegura | **Intercambio de claves Diffie–Hellman** | Intercambio de claves. Solo viajan valores públicos, K no pasa por la red. No autentica (MITM), por eso en TLS va con certificado |
+| Demostrar que un documento ha sido firmado por una determinada entidad y detectar modificaciones posteriores | **Firma digital** | Autenticación, integridad y no repudio. Se firma el hash con la privada y se verifica con la pública |
 
 ### 1.2 Configuraciones
 
-**¿Cuál seleccionarías?** La **B**. Es la única con longitudes y algoritmos vigentes.
+**¿Qué configuración seleccionarías para proteger una comunicación actual?** La **B**. Es la única con longitudes y algoritmos vigentes.
+
+**¿Por qué rechazarías las otras dos?** A usa algoritmos rotos o deprecados y C no cifra nada de verdad.
 
 | Config. | Elemento | Problema | |
 |---|---|---|---|
@@ -82,7 +84,7 @@ Más adelante RSA-2048 tendrá que migrar a post-cuántico (CNSA 2.0, ML-KEM). E
 
 ### 1.3 Hash, cifrado y certificados
 
-**¿Diferencia entre cifrar y calcular un hash?**
+**Diferencia entre cifrar un mensaje y calcular su hash**
 
 | | Cifrado | Hash |
 |---|---|---|
@@ -91,7 +93,7 @@ Más adelante RSA-2048 tendrá que migrar a post-cuántico (CNSA 2.0, ML-KEM). E
 | Clave | Sí | No (salvo HMAC) |
 | Salida | Tamaño según el mensaje | Fija (SHA-256 = 32 bytes) |
 
-**¿Qué aporta un certificado en TLS?**
+**¿Qué propiedades de seguridad puede aportar un certificado digital dentro de una comunicación TLS?**
 
 | Propiedad | Cómo |
 |---|---|
@@ -177,10 +179,10 @@ Alice cifra `mensaje.encode("utf-8")` y Bob hace `.decode("utf-8")` al descifrar
 | Clave pública de Alice, A | 107 |
 | Clave privada de Bob, b | 203 |
 | Clave pública de Bob, B | 56 |
-| K calculada por Alice | 96 |
-| K calculada por Bob | 96 |
+| Clave compartida calculada por Alice | 96 |
+| Clave compartida calculada por Bob | 96 |
 | Mensaje original | `Hola Bob, aquí Alice. Prueba PE 89.2` |
-| Mensaje cifrado (hex) | `28 0F 0C 01 40 22 0F 02 4C 40 01 11 15 A3 CD 40 21 0C 09 03 05 4E 40 30 12 15 05 02 01 40 30 25 40 58 59 4E 52` |
+| Mensaje cifrado en hexadecimal | `28 0F 0C 01 40 22 0F 02 4C 40 01 11 15 A3 CD 40 21 0C 09 03 05 4E 40 30 12 15 05 02 01 40 30 25 40 58 59 4E 52` |
 | Mensaje recuperado por Bob | `Hola Bob, aquí Alice. Prueba PE 89.2` |
 
 <details>
@@ -253,25 +255,25 @@ openssl x509 -in certificados/certificado_servidor_PE89_2.crt -noout -fingerprin
 
 | Elemento | Valor encontrado |
 |---|---|
-| Sujeto | `C = ES, O = CETI Formacion, OU = PE 89.2, CN = servidor.pe89.local` |
-| CN | `servidor.pe89.local` |
+| Sujeto del certificado | `C = ES, O = CETI Formacion, OU = PE 89.2, CN = servidor.pe89.local` |
+| Nombre común (CN) | `servidor.pe89.local` |
 | Organización | `CETI Formacion` |
 | Emisor | `C = ES, O = CETI Formacion, OU = Laboratorio de Criptografia, CN = CETI Lab Root CA 2026` |
 | Número de serie | `2300585473` (`0x89202601`) |
 | Fecha de inicio | `Oct 16 06:21:14 2026 GMT` |
 | Fecha de caducidad | `Oct 16 06:21:14 2027 GMT` |
 | Algoritmo de clave pública | `rsaEncryption` |
-| Tamaño de la clave | 2048 bits (exponente 65537) |
+| Tamaño de la clave pública | 2048 bits (exponente 65537) |
 | Algoritmo de firma | `sha256WithRSAEncryption` |
-| Huella SHA-256 | `C2:6C:98:F6:63:81:45:0C:04:9A:BA:29:72:B7:FB:CD:24:DB:54:31:27:95:E5:CB:BC:F0:06:82:56:1E:D7:14` |
-| SAN | `DNS:servidor.pe89.local, DNS:www.servidor.pe89.local, IP Address:172.28.0.30` |
+| Huella digital SHA-256 | `C2:6C:98:F6:63:81:45:0C:04:9A:BA:29:72:B7:FB:CD:24:DB:54:31:27:95:E5:CB:BC:F0:06:82:56:1E:D7:14` |
+| Subject Alternative Name (SAN) | `DNS:servidor.pe89.local, DNS:www.servidor.pe89.local, IP Address:172.28.0.30` |
 | Key Usage | `critical` · Digital Signature, Key Encipherment |
 | Extended Key Usage | TLS Web Server Authentication |
 | ¿Puede actuar como CA? | No. `Basic Constraints: critical, CA:FALSE` |
 
 ### 3.2 Interpretación
 
-**¿Servidor o CA? ¿Qué campos lo indican?** Es de servidor.
+**¿Es un certificado de servidor o de autoridad de certificación? ¿Qué campos permiten determinarlo?** Es de servidor.
 
 | Campo | Servidor | CA del laboratorio |
 |---|---|---|
@@ -280,13 +282,13 @@ openssl x509 -in certificados/certificado_servidor_PE89_2.crt -noout -fingerprin
 | Extended Key Usage | TLS Web Server Authentication | — |
 | Emisor = Sujeto | No | Sí (raíz autofirmada) |
 
-**¿Qué lo relaciona con el servidor?** El SAN (`servidor.pe89.local`, `www.servidor.pe89.local`, `172.28.0.30`) y el CN. Los clientes TLS validan contra el SAN. El CN ya no se usa para eso (RFC 9525).
+**¿Qué información del certificado permite relacionarlo con la identidad del servidor?** El SAN (`servidor.pe89.local`, `www.servidor.pe89.local`, `172.28.0.30`) y el CN. Los clientes TLS validan contra el SAN. El CN ya no se usa para eso (RFC 9525).
 
-**¿Qué se puede distribuir públicamente?** El certificado entero. Lleva identidad, clave pública y firma de la CA, nada secreto.
+**¿Qué parte del certificado puede distribuirse públicamente?** El certificado entero. Lleva identidad, clave pública y firma de la CA, nada secreto.
 
-**¿Contiene la clave privada?** No. Solo tiene módulo y exponente públicos, y `grep -c PRIVATE` sobre el `.crt` da `0`.
+**¿Contiene el certificado la clave privada asociada?** No. Solo tiene módulo y exponente públicos, y `grep -c PRIVATE` sobre el `.crt` da `0`.
 
-**¿Riesgo si roban la privada?** Cualquiera puede suplantar a `servidor.pe89.local` con un certificado válido y hacer MITM sin alertas hasta que se revoque o caduque (16/10/2027). En TLS 1.2 con intercambio RSA también podría descifrar el tráfico capturado. En TLS 1.3 no, por la forward secrecy. Se revoca (CRL/OCSP), se genera una clave nueva y se reemite el certificado.
+**¿Qué riesgo existiría si la clave privada fuera publicada o robada?** Cualquiera puede suplantar a `servidor.pe89.local` con un certificado válido y hacer MITM sin alertas hasta que se revoque o caduque (16/10/2027). En TLS 1.2 con intercambio RSA también podría descifrar el tráfico capturado. En TLS 1.3 no, por la forward secrecy. Se revoca (CRL/OCSP), se genera una clave nueva y se reemite el certificado.
 
 ### 3.3 Verificación
 
