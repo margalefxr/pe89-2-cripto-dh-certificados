@@ -1,6 +1,6 @@
 # PE 89.2 — Técnicas criptográficas, Diffie–Hellman + XOR y certificados digitales
 
-**Autor:** Xavier Margalef Riestra · **Módulo:** MF0489 · **Fecha:** 16/10/2026
+**Autor:** Xavier Margalef Riestra · **Módulo:** MF0489 Semana 2 · **Fecha:** 16/10/2026
 
 Selección de técnicas criptográficas, intercambio Diffie–Hellman entre dos contenedores (Alice y Bob) con cifrado XOR usando K, y análisis y verificación de un certificado X.509 con OpenSSL.
 
@@ -19,7 +19,7 @@ Selección de técnicas criptográficas, intercambio Diffie–Hellman entre dos 
 | **Objetivo** | Elegir técnicas según la necesidad, implantar DH + XOR entre dos contenedores y analizar un certificado X.509 |
 | **Resultado** | Completado. Alice y Bob obtienen K = 96 y Bob recupera el mensaje exacto. `openssl verify` → `OK`. 4/4 tests OK |
 | **Entorno** | macOS + OrbStack, `python:3.11-slim`, OpenSSL 3.6.3. Sesiones grabadas en [`logs/`](logs/) |
-| **Observación** | Con P = 251 la clave privada se saca por fuerza bruta en 249 intentos ([2.4](#24-comprobación)) |
+| **Observación** | Con P = 251 la clave privada se saca por fuerza bruta en 249 intentos. Además el rango del enunciado permite a = 250, que da A = 1 y K = 1 con cualquier b ([2.4](#24-comprobación)) |
 
 | Criterio | Pts | Sección | Evidencia |
 |---|---|---|---|
@@ -34,6 +34,20 @@ Selección de técnicas criptográficas, intercambio Diffie–Hellman entre dos 
 | Interpretación | 0,75 | [3.2](#32-interpretación) | 5 respuestas |
 | Verificación | 0,75 | [3.3](#33-verificación) | Comando + salida + lectura |
 | **TOTAL** | **10** | | |
+
+| Actividad | Pregunta | Respuesta corta | Sección |
+|---|---|---|---|
+| Técnicas | ¿Qué configuración seleccionarías? | B (RSA-2048, SHA-256, TLS 1.3) | [1.2](#12-configuraciones) |
+| Técnicas | ¿Por qué rechazarías las otras dos? | A: RSA-1024, SHA-1, TLS 1.0. C: MD5, HTTP, clave en el mensaje | [1.2](#12-configuraciones) |
+| Técnicas | ¿Diferencia entre cifrar y hacer hash? | Cifrar es reversible con clave, el hash no | [1.3](#13-hash-cifrado-y-certificados) |
+| Técnicas | ¿Qué aporta un certificado en TLS? | Autenticación del servidor y protección contra MITM | [1.3](#13-hash-cifrado-y-certificados) |
+| DH + XOR | Valores a, A, b, B, K, mensajes | a = 97, A = 107, b = 203, B = 56, K = 96 | [2.4](#24-comprobación) |
+| Certificado | ¿Servidor o CA? | Servidor (`CA:FALSE`, EKU serverAuth) | [3.2](#32-interpretación) |
+| Certificado | ¿Qué lo relaciona con el servidor? | SAN y CN | [3.2](#32-interpretación) |
+| Certificado | ¿Qué se puede distribuir? | El certificado entero | [3.2](#32-interpretación) |
+| Certificado | ¿Contiene la clave privada? | No | [3.2](#32-interpretación) |
+| Certificado | ¿Riesgo si roban la privada? | Suplantación y MITM hasta revocar | [3.2](#32-interpretación) |
+| Certificado | Verificación contra la CA | `OK` | [3.3](#33-verificación) |
 
 ## RA1 — Técnicas de cifrado
 
@@ -211,7 +225,8 @@ Escribe el mensaje para Bob: Hola Bob, aquí Alice. Prueba PE 89.2
 |---|---|---|---|
 | K de Alice = K de Bob | 96 = 96 | (G^b)^a = (G^a)^b mod P | DH funciona, las dos partes tienen la misma clave sin enviarla |
 | Mensaje recuperado | Idéntico, con la `í` incluida | (m ^ K) ^ K = m y UTF-8 en los dos lados | El cifrado es reversible, pero solo da confidencialidad |
-| Fuerza bruta con A y B | `a encontrada: 97 -> K = 96` en ≤ 249 intentos | P = 251 cabe en 8 bits | Hace falta P ≥ 2048 bits o X25519 (ECDHE en TLS 1.3) |
+| Fuerza bruta con A y B | `a encontrada: 97 -> K = 96` en ≤ 249 intentos | P = 251 cabe en 8 bits | Hace falta P ≥ 2048 bits o X25519. En el PE 89.1 usé el grupo 14 de RFC 3526 y `secrets` |
+| a = 250 (lo permite el enunciado) | A = 1 y K = 1 con cualquier b. Con a = 125, A = 250 y K solo puede ser 1 o 250 | El orden de 6 es 250, así que 6^250 = 1 y 6^125 = −1 mod 251 | Hay que validar la pública recibida (2 ≤ A ≤ P − 2), como `validar_publica()` del PE 89.1 |
 | Probar las 256 K | Solo K = 96 da texto legible | K es un byte | La clave de sesión debe ser de 128-256 bits |
 | Espacios (`0x20`) en el hex | Todos salen como `40` | Misma K para cada byte | Hace falta un keystream distinto por byte, como ChaCha20 en el PE 89.1 |
 | MITM | No se detecta | Sin autenticación ni MAC | Hace falta un certificado que firme el handshake (RA3) y AEAD (ChaCha20-Poly1305, AES-GCM) |
@@ -297,13 +312,15 @@ En el Mac (OpenSSL 3.6.3) da el mismo `OK` ([`logs/pruebas.log`](logs/pruebas.lo
 | Potencia modular | `pow(G, b, P)` | `G ** b % P` | No calcula el número gigante intermedio |
 | Entrada de a y b | `pedir_secreto()` con `while`/`try` | `int(input())` del código base | Valida el rango 2–250 y que sea entero |
 | Codificación | UTF-8 | ASCII | Soporta tildes. La `í` ocupa 2 bytes y se recupera bien |
+| Rango de a y b | 2–250, el del enunciado | Excluir 125 y 250 | Lo respeto y documento el valor débil. Excluirlos cambiaría el enunciado |
+| Imagen | `python:3.11-slim` por tag | Fijada por digest `@sha256:...` | El tag es lo que pide el enunciado. En producción fijaría el digest para que la imagen no cambie sin control (supply chain) |
 | Dependencias | Ninguna | `requirements.txt` | Solo uso la librería estándar (`socket`) |
 
 ## Normativa
 
 | Referencia | Relación |
 |---|---|
-| ISO/IEC 27001:2022 A.8.24 | Uso de criptografía. Elegir algoritmos y longitudes (B frente a A y C) y gestionar claves |
+| ISO/IEC 27001:2022 A.8.24 · A.5.21 | Uso de criptografía (B frente a A y C) · cadena de suministro (imagen Docker de terceros) |
 | ENS (RD 311/2022) mp.com.2 / mp.com.3 | Confidencialidad e integridad de las comunicaciones. CCN-STIC-807 descarta MD5, SHA-1 y RSA-1024 |
 | NIST SP 800-131A / 800-57 | RSA < 2048 y SHA-1 en firma no permitidos. RSA-2048 válido hasta 2030 |
 | eIDAS (UE 910/2014, mod. 2024/1183) | Firma electrónica y certificados cualificados en la UE |
@@ -330,4 +347,14 @@ openssl x509 -in certificados/certificado_servidor_PE89_2.crt -noout -text
 openssl verify -CAfile certificados/CA_laboratorio_PE89_2.crt certificados/certificado_servidor_PE89_2.crt
 ```
 
-Pasos, tests, decisiones de proceso, cambios y dificultades en [`WORKLOG.md`](WORKLOG.md).
+```
+pe89-2-cripto-dh-certificados/
+├── README.md            ← este informe
+├── WORKLOG.md           ← pasos, tests, decisiones, cambios y dificultades
+├── certificados/        ← .crt del enunciado
+├── lab-dh-xor/          ← docker-compose.yml + scripts de Alice y Bob
+├── logs/                ← sesiones reales (entorno, Bob, Alice, tests y OpenSSL)
+└── tests/test_dh_xor.py ← 4 tests
+```
+
+Dificultades en [`WORKLOG.md`](WORKLOG.md).
