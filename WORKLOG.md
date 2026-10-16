@@ -16,6 +16,7 @@ Entorno final: macOS + OrbStack, `python:3.11-slim`, Python 3.12 y OpenSSL 3.6.3
 | 8 | Tests + `openssl x509` + `openssl verify` | [`pruebas.log`](logs/pruebas.log). 4/4 OK, `OK` |
 | 9 | Fuerza bruta con A y B | a = 97, K = 96 |
 | 10 | Revisión del README contra la rúbrica | Ver [Cambios](#cambios) |
+| 11 | Comparar con PE 89.1, AP22 y AP23 | Tabla de preguntas, enlace al DH del PE 89.1 y valor débil a = 250 (A = 1, K = 1) |
 
 ## Tests
 
@@ -47,6 +48,9 @@ Entorno final: macOS + OrbStack, `python:3.11-slim`, Python 3.12 y OpenSSL 3.6.3
 | v2 | Texto recortado, log plegado | Leer rápido |
 | v3 | Salidas del README sustituidas por las de `logs/` | Evidencia real con `python:3.11-slim` |
 | v3 | Tabla de resultados con por qué e implicaciones | Conectar la prueba con un entorno real |
+| v4 | Tabla de preguntas de la actividad y árbol del repo | Mismo formato que el PE 89.1 |
+| v4 | Valor débil a = 250 / 125 documentado | Lo permite el enunciado. En el PE 89.1 ya validaba la pública |
+| v4 | Imagen por tag frente a digest en Decisiones | Supply chain (ISO 27001 A.5.21) |
 
 ## Dificultades
 
