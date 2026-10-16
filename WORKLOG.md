@@ -51,6 +51,7 @@ Entorno final: macOS + OrbStack, `python:3.11-slim`, Python 3.12 y OpenSSL 3.6.3
 | v4 | Tabla de preguntas de la actividad y árbol del repo | Mismo formato que el PE 89.1 |
 | v4 | Valor débil a = 250 / 125 documentado | Lo permite el enunciado. En el PE 89.1 ya validaba la pública |
 | v4 | Imagen por tag frente a digest en Decisiones | Supply chain (ISO 27001 A.5.21) |
+| v5 | Preguntas y etiquetas de las tablas copiadas literales del enunciado | Que el evaluador encuentre cada punto sin buscar |
 
 ## Dificultades
 
